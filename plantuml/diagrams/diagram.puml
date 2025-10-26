@@ -1,0 +1,155 @@
+@startuml
+!theme plain
+title Kubernetes Architecture Diagram
+footer Social Notebook - Kubernetes Infrastructure
+
+scale max 1024 width
+skinparam nodesep 20
+skinparam ranksep 20
+
+' Include Kubernetes libraries
+!include <k8s/Common>
+!include <k8s/Simplified>
+!include <k8s/OSS/all>
+
+' External Users
+actor "Developer" as dev
+actor "DevOps Engineer" as devops
+actor "End User" as user
+
+' Kubernetes Cluster
+Cluster_Boundary(cluster, "Kubernetes Cluster") {
+    
+    ' Control Plane
+    Cluster_Boundary(control_plane, "Control Plane") {
+        KubernetesMaster(master, "Master Node", "Control Plane")
+        KubernetesApi(api, "API Server", "kube-apiserver")
+        KubernetesSched(scheduler, "Scheduler", "kube-scheduler")
+        KubernetesCcm(ccm, "Controller Manager", "kube-controller-manager")
+        KubernetesEtcd(etcd, "etcd", "etcd")
+    }
+    
+    ' Worker Nodes
+    Cluster_Boundary(worker_nodes, "Worker Nodes") {
+        KubernetesNode(node1, "Worker Node 1", "kubelet")
+        KubernetesNode(node2, "Worker Node 2", "kubelet")
+        KubernetesNode(node3, "Worker Node 3", "kubelet")
+        
+        ' Namespace: Frontend
+        Namespace_Boundary(frontend_ns, "Frontend Namespace") {
+            KubernetesIng(ingress, "Ingress Controller", "nginx")
+            KubernetesSvc(frontend_svc, "Frontend Service", "ClusterIP")
+            KubernetesDeploy(frontend_deploy, "Frontend Deployment", "nginx")
+            KubernetesPod(frontend_pod1, "Frontend Pod 1", "nginx")
+            KubernetesPod(frontend_pod2, "Frontend Pod 2", "nginx")
+            KubernetesRs(frontend_rs, "ReplicaSet", "frontend")
+            KubernetesHpa(frontend_hpa, "HPA", "autoscaling")
+        }
+        
+        ' Namespace: Backend
+        Namespace_Boundary(backend_ns, "Backend Namespace") {
+            KubernetesSvc(backend_svc, "Backend Service", "ClusterIP")
+            KubernetesDeploy(backend_deploy, "Backend Deployment", "api")
+            KubernetesPod(backend_pod1, "Backend Pod 1", "api")
+            KubernetesPod(backend_pod2, "Backend Pod 2", "api")
+            KubernetesRs(backend_rs, "ReplicaSet", "backend")
+            KubernetesHpa(backend_hpa, "HPA", "autoscaling")
+        }
+        
+        ' Namespace: Database
+        Namespace_Boundary(database_ns, "Database Namespace") {
+            KubernetesSvc(db_svc, "Database Service", "ClusterIP")
+            KubernetesSts(db_sts, "Database StatefulSet", "postgres")
+            KubernetesPod(db_pod, "Database Pod", "postgres")
+            KubernetesPvc(db_pvc, "Database PVC", "storage")
+            KubernetesPv(db_pv, "Persistent Volume", "storage")
+            KubernetesSc(db_sc, "Storage Class", "gp2")
+        }
+        
+        ' Namespace: Monitoring
+        Namespace_Boundary(monitoring_ns, "Monitoring Namespace") {
+            KubernetesSvc(monitoring_svc, "Monitoring Service", "ClusterIP")
+            KubernetesDeploy(monitoring_deploy, "Monitoring Deployment", "prometheus")
+            KubernetesPod(monitoring_pod, "Monitoring Pod", "prometheus")
+            KubernetesCm(monitoring_cm, "ConfigMap", "prometheus-config")
+            KubernetesSecret(monitoring_secret, "Secret", "monitoring-credentials")
+        }
+    }
+}
+
+' External Storage
+rectangle "External Storage" as external_storage {
+    KubernetesVol(volume, "External Volume", "EBS")
+}
+
+' External Services
+rectangle "External Services" as external_services {
+    rectangle "Load Balancer" as lb
+    rectangle "DNS" as dns
+    rectangle "Container Registry" as registry
+}
+
+' Relationships - User Access
+Rel(user, lb, "HTTPS")
+Rel(lb, ingress, "Route Traffic")
+
+' Relationships - Developer Access
+Rel(dev, api, "kubectl")
+Rel(dev, registry, "Push Images")
+
+' Relationships - DevOps Access
+Rel(devops, api, "kubectl")
+Rel(devops, master, "Manage Cluster")
+
+' Relationships - Control Plane
+Rel(master, api, "Manages")
+Rel(api, scheduler, "Schedules")
+Rel(api, ccm, "Controls")
+Rel(api, etcd, "Stores State")
+
+' Relationships - Worker Nodes
+Rel(scheduler, node1, "Schedules Pods")
+Rel(scheduler, node2, "Schedules Pods")
+Rel(scheduler, node3, "Schedules Pods")
+
+' Relationships - Frontend Flow
+Rel(ingress, frontend_svc, "Routes")
+Rel(frontend_svc, frontend_pod1, "Load Balances")
+Rel(frontend_svc, frontend_pod2, "Load Balances")
+Rel(frontend_deploy, frontend_rs, "Manages")
+Rel(frontend_rs, frontend_pod1, "Creates")
+Rel(frontend_rs, frontend_pod2, "Creates")
+Rel(frontend_hpa, frontend_deploy, "Scales")
+
+' Relationships - Backend Flow
+Rel(frontend_pod1, backend_svc, "API Calls")
+Rel(frontend_pod2, backend_svc, "API Calls")
+Rel(backend_svc, backend_pod1, "Load Balances")
+Rel(backend_svc, backend_pod2, "Load Balances")
+Rel(backend_deploy, backend_rs, "Manages")
+Rel(backend_rs, backend_pod1, "Creates")
+Rel(backend_rs, backend_pod2, "Creates")
+Rel(backend_hpa, backend_deploy, "Scales")
+
+' Relationships - Database Flow
+Rel(backend_pod1, db_svc, "Database Queries")
+Rel(backend_pod2, db_svc, "Database Queries")
+Rel(db_svc, db_pod, "Connects")
+Rel(db_sts, db_pod, "Manages")
+Rel(db_pod, db_pvc, "Mounts")
+Rel(db_pvc, db_pv, "Claims")
+Rel(db_pv, volume, "Backed by")
+
+' Relationships - Monitoring Flow
+Rel(monitoring_pod, frontend_pod1, "Monitors")
+Rel(monitoring_pod, backend_pod1, "Monitors")
+Rel(monitoring_pod, db_pod, "Monitors")
+Rel(monitoring_deploy, monitoring_cm, "Uses Config")
+Rel(monitoring_deploy, monitoring_secret, "Uses Secrets")
+
+' Relationships - External Services
+Rel(registry, frontend_deploy, "Pulls Images")
+Rel(registry, backend_deploy, "Pulls Images")
+Rel(registry, monitoring_deploy, "Pulls Images")
+
+@enduml

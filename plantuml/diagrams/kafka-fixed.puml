@@ -1,0 +1,127 @@
+@startuml
+!theme plain
+title Kafka Event Streaming Architecture
+footer Social Notebook - Orders Processing Pipeline
+
+scale max 800 width
+skinparam nodesep 20
+skinparam ranksep 20
+
+' Include available Kafka icons
+!include <logos/kafka>
+!include <logos/kafka-icon>
+
+' Define custom styling for Kafka components
+skinparam rectangle<<Producer>> {
+    BackgroundColor #FF6B6B
+    BorderColor #E53E3E
+}
+
+skinparam rectangle<<Consumer>> {
+    BackgroundColor #4ECDC4
+    BorderColor #38B2AC
+}
+
+skinparam rectangle<<Broker>> {
+    BackgroundColor #96CEB4
+    BorderColor #68D391
+}
+
+skinparam rectangle<<Topic>> {
+    BackgroundColor #45B7D1
+    BorderColor #3182CE
+}
+
+skinparam rectangle<<Partition>> {
+    BackgroundColor #FECA57
+    BorderColor #F39C12
+}
+
+' Producer Service
+rectangle "Checkout Service" as checkout <<Producer>> {
+    $kafka-icon
+    note right : **Producer**\nPublishes order events
+}
+
+' Kafka Cluster
+package "Kafka Cluster" {
+    
+    ' Kafka Brokers
+    rectangle "Broker 1" as broker1 <<Broker>> {
+        $kafka
+    }
+    rectangle "Broker 2" as broker2 <<Broker>> {
+        $kafka
+    }
+    rectangle "Broker 3" as broker3 <<Broker>> {
+        $kafka
+    }
+    
+    ' Topic with Partitions
+    rectangle "orders Topic" as topic <<Topic>> {
+        rectangle "Partition 0" as p0 <<Partition>>
+        rectangle "Partition 1" as p1 <<Partition>>
+        rectangle "Partition 2" as p2 <<Partition>>
+    }
+    
+    ' Consumer Groups
+    rectangle "inventory-group" as inventory_group <<Consumer>> {
+        $kafka-icon
+    }
+    
+    rectangle "billing-group" as billing_group <<Consumer>> {
+        $kafka-icon
+    }
+}
+
+' Consumer Services
+rectangle "Inventory Manager" as inventory_service {
+    rectangle "Stock Update" as stock
+    rectangle "Reservation" as reservation
+}
+
+rectangle "Billing Manager" as billing_service {
+    rectangle "Charge Calc" as charges
+    rectangle "Invoice Gen" as invoice
+}
+
+' Message Flow
+checkout -down-> topic : "Publishes Orders"
+topic -down-> inventory_group : "Consumes Orders"
+topic -down-> billing_group : "Consumes Orders"
+
+' Service Processing
+inventory_group -right-> inventory_service : "Processes"
+billing_group -right-> billing_service : "Processes"
+
+' Internal flows
+inventory_service -down-> stock
+inventory_service -down-> reservation
+billing_service -down-> charges
+billing_service -down-> invoice
+
+' Broker relationships
+broker1 -down-> topic : "Hosts"
+broker2 -down-> topic : "Hosts"
+broker3 -down-> topic : "Hosts"
+
+note top of topic
+  **Orders Topic**
+  - 3 Partitions for scalability
+  - Replication Factor: 3
+  - Retention: 7 days
+end note
+
+note right of inventory_group
+  **Inventory Consumer**
+  - Updates stock levels
+  - Creates reservations
+end note
+
+note right of billing_group
+  **Billing Consumer**
+  - Calculates charges
+  - Generates invoices
+end note
+
+@enduml

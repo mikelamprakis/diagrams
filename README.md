@@ -1,279 +1,210 @@
-# Python Diagrams - Kafka Architecture
+# Diagrams
 
-This directory contains Kafka architecture diagrams created using the Python `diagrams` library with actual tech stack icons.
+Architecture diagrams and animations for the social-notebook project.
 
-## Setup
+## 📁 Directory Structure
 
-### 1. Install Graphviz (Required for rendering)
-```bash
-brew install graphviz
 ```
-
-### 2. Install Python Dependencies
-```bash
-# Using uv (recommended for this project)
-uv pip install diagrams
-
-# Or using pip
-pip install -r requirements.txt
+diagrams/
+├── plantuml/              # PlantUML static diagrams
+│   ├── diagrams/          # .puml files
+│   ├── docs/              # Documentation
+│   └── plantuml-stdlib/   # Icon libraries
+│
+├── python-diagrams/       # Python Diagrams (static frames)
+│   ├── scripts/           # Python & shell scripts
+│   ├── output/            # Generated media
+│   │   ├── images/       # PNG, SVG
+│   │   ├── gifs/         # Animated GIFs
+│   │   └── videos/       # MP4 videos
+│   ├── docs/              # Documentation
+│   └── requirements.txt   # Dependencies
+│
+└── manim-animations/      # Manim smooth animations ⭐
+    ├── animations/        # Python animation scripts
+    ├── output/            # Generated videos
+    │   ├── videos/       # MP4 outputs
+    │   └── gifs/         # GIF conversions
+    └── docs/              # Documentation
 ```
-
-### 3. Verify Installation
-```bash
-python -c "import diagrams; print('Diagrams installed successfully!')"
-```
-
-## Available Diagrams
-
-### 1. `kafka_architecture.py` - Full Architecture
-Comprehensive Kafka setup with:
-- Checkout Service (Producer)
-- Kafka Cluster with 3 partitions
-- Inventory Manager (Consumer)
-- Billing Manager (Consumer)
-
-**Run:**
-```bash
-python kafka_architecture.py
-```
-
-**Output:** `kafka_orders.png`
 
 ---
 
-### 2. `kafka_simple.py` - Simple Flow
-Clean, minimal diagram showing basic producer-consumer flow.
+## 🎨 PlantUML (`plantuml/`)
 
-**Run:**
+**Static diagrams** with extensive icon libraries.
+
+### Features
+- ✅ Kubernetes icons (40+ components)
+- ✅ Kafka logos
+- ✅ AWS, Azure, GCP icons (1000+)
+- ✅ Best for documentation
+
+### Quick Start
 ```bash
+# View in VS Code with PlantUML extension
+# or online at plantuml.com
+```
+
+**→ [Full PlantUML Guide](plantuml/README.md)**
+
+---
+
+## 📊 Python Diagrams (`python-diagrams/`)
+
+**Code-generated diagrams** with actual tech stack icons.
+
+### Features
+- ✅ 1000+ tech icons (Kafka, AWS, K8s, databases)
+- ✅ Multiple formats (PNG, SVG, GIF, MP4)
+- ✅ Dark/transparent backgrounds
+- ✅ Frame-based animations
+
+### Quick Start
+```bash
+cd python-diagrams/scripts
+
+# Generate diagram
+python kafka_simple.py
+# Output: ../output/images/kafka_simple.png
+
+# Create animation
+python create_animation.py
+./create_gif.sh
+# Output: ../output/gifs/kafka_animation.gif
+```
+
+**→ [Full Python Diagrams Guide](python-diagrams/README.md)**
+
+---
+
+## 🎬 Manim Animations (`manim-animations/`) ⭐ BEST FOR SOCIAL MEDIA
+
+**Professional smooth flowing animations** - Cinema quality!
+
+### Features
+- ✅ **Smooth transitions** - Icons fade in gradually
+- ✅ **Growing arrows** - Arrows appear progressively
+- ✅ **Flowing data** - Animated packets moving through system
+- ✅ **Pulsing effects** - Components pulse and glow
+- ✅ **Professional quality** - Like 3Blue1Brown videos
+
+### Quick Start
+```bash
+cd manim-animations/animations
+
+# Preview (fast, low quality)
+manim -pql kafka_smooth.py KafkaFlowAnimation
+
+# Export for Instagram Reels / TikTok
+manim -pqh -r 1080,1920 kafka_smooth.py KafkaFlowAnimation
+
+# Export for Instagram Posts
+manim -pqh -r 1080,1080 kafka_smooth.py KafkaFlowAnimation
+```
+
+**→ [Full Manim Guide](manim-animations/README.md)**
+
+---
+
+## 🎯 Which Tool to Use?
+
+| Use Case | Tool | Reason |
+|----------|------|--------|
+| **Smooth social media animations** | Manim | True flowing animations |
+| **Static diagrams with K8s icons** | PlantUML | Native K8s library |
+| **Static diagrams with Kafka icons** | Python Diagrams | Actual Kafka icons |
+| **Instagram Reels / TikTok** | Manim | Smooth, engaging |
+| **Documentation** | PlantUML | Easy to maintain |
+| **GitHub README animations** | Python Diagrams | GIF export |
+
+---
+
+## 🚀 Quick Comparison
+
+### Static Diagrams
+```bash
+# PlantUML - for K8s
+code plantuml/diagrams/diagram.puml
+
+# Python Diagrams - for Kafka
+cd python-diagrams/scripts
 python kafka_simple.py
 ```
 
-**Output:** `kafka_simple.png`
+### Animations
+```bash
+# Frame-based (choppy but simple)
+cd python-diagrams/scripts
+python create_animation.py
+./create_gif.sh
+
+# Smooth flowing (professional)
+cd manim-animations/animations
+manim -pqh kafka_smooth.py KafkaFlowAnimation
+```
 
 ---
 
-### 3. `kafka_detailed.py` - Detailed Cluster
-Shows complete cluster architecture with:
-- 3 Kafka brokers
-- 3 partitions
-- Consumer groups with databases
-- Full message flow
+## 📦 Installation
 
-**Run:**
+### PlantUML
 ```bash
-python kafka_detailed.py
+# Use VS Code PlantUML extension
+# or IntelliJ IDEA plugin
 ```
 
-**Output:** `kafka_detailed.png`
+### Python Diagrams
+```bash
+brew install graphviz imagemagick ffmpeg
+pip install -r python-diagrams/requirements.txt
+```
+
+### Manim
+```bash
+brew install ffmpeg
+pip install manim
+```
 
 ---
 
-## Available Icons in Diagrams Library
+## 📚 Documentation
 
-### Messaging & Queuing
-- `Kafka` - Apache Kafka
-- `RabbitMQ` - RabbitMQ
-- `ActiveMQ` - ActiveMQ
-- `ZeroMQ` - ZeroMQ
+Each tool has detailed documentation in its respective folder:
 
-### Cloud Providers
-#### AWS
-- `EC2`, `S3`, `Lambda`, `RDS`, `DynamoDB`
-- `SQS`, `SNS`, `Kinesis`
-- 200+ AWS services
+- **[plantuml/README.md](plantuml/README.md)** - PlantUML guide
+- **[python-diagrams/README.md](python-diagrams/README.md)** - Python Diagrams guide
+- **[manim-animations/README.md](manim-animations/README.md)** - Manim guide
 
-#### Azure
-- `VM`, `Functions`, `CosmosDB`, `AKS`
-- `ServiceBus`, `EventHub`
-- 100+ Azure services
+---
 
-#### GCP
-- `GCE`, `GCS`, `GCF`, `CloudSQL`
-- `PubSub`, `Dataflow`
-- 100+ GCP services
+## 💡 Recommended Workflow
 
-### Kubernetes
-- `Pod`, `Service`, `Deployment`, `StatefulSet`
-- `ConfigMap`, `Secret`, `Ingress`
-- 40+ K8s components
+### For Social Media Content (Reels, TikTok)
+1. **Use Manim** for smooth animations
+2. Navigate to `manim-animations/animations/`
+3. Modify or create new animation script
+4. Export with: `manim -pqh -r 1080,1920 your_script.py YourScene`
 
-### Databases
-- `PostgreSQL`, `MySQL`, `MongoDB`, `Redis`
-- `Cassandra`, `Elasticsearch`, `InfluxDB`
+### For Documentation
+1. **Use PlantUML** for static diagrams
+2. Edit `.puml` files in `plantuml/diagrams/`
+3. View in IDE or export to PNG/SVG
 
-### Programming
-- `Python`, `Java`, `Go`, `JavaScript`
-- `Spring`, `Django`, `Flask`, `React`
+### For Blog Posts / Articles
+1. **Use Python Diagrams** for static images
+2. Navigate to `python-diagrams/scripts/`
+3. Run Python script: `python your_diagram.py`
+4. Find output in `../output/images/`
 
-### On-Premise
-- `Server`, `Client`, `Database`
-- `Nginx`, `Apache`, `Tomcat`
+---
 
-## Usage Examples
+## 🎓 Learning Resources
 
-### Basic Kafka Flow
-```python
-from diagrams import Diagram
-from diagrams.onprem.queue import Kafka
-from diagrams.onprem.client import Client
+- **PlantUML**: [plantuml.com](https://plantuml.com)
+- **Python Diagrams**: [diagrams.mingrammer.com](https://diagrams.mingrammer.com)
+- **Manim**: [docs.manim.community](https://docs.manim.community)
 
-with Diagram("My Kafka", show=False):
-    producer = Client("Producer")
-    kafka = Kafka("Topic")
-    consumer = Client("Consumer")
-    
-    producer >> kafka >> consumer
-```
+---
 
-### Multi-Consumer Setup
-```python
-from diagrams import Diagram, Cluster
-from diagrams.onprem.queue import Kafka
-from diagrams.onprem.client import Client
-
-with Diagram("Multi Consumer", show=False):
-    producer = Client("Producer")
-    kafka = Kafka("Topic")
-    
-    with Cluster("Consumers"):
-        consumers = [
-            Client("Consumer 1"),
-            Client("Consumer 2"),
-            Client("Consumer 3")
-        ]
-    
-    producer >> kafka >> consumers
-```
-
-### Cloud Integration
-```python
-from diagrams import Diagram, Cluster
-from diagrams.onprem.queue import Kafka
-from diagrams.aws.storage import S3
-from diagrams.aws.database import RDS
-
-with Diagram("Kafka to AWS", show=False):
-    kafka = Kafka("Events")
-    s3 = S3("Data Lake")
-    rds = RDS("Analytics DB")
-    
-    kafka >> [s3, rds]
-```
-
-## Creating Animated Diagrams
-
-To create step-by-step animations:
-
-### 1. Create Multiple Frames
-```python
-# frame1.py - Just producer
-from diagrams import Diagram
-from diagrams.onprem.client import Client
-
-with Diagram("Frame 1", filename="frame1", show=False):
-    Client("Producer")
-```
-
-```python
-# frame2.py - Add Kafka
-from diagrams import Diagram
-from diagrams.onprem.client import Client
-from diagrams.onprem.queue import Kafka
-
-with Diagram("Frame 2", filename="frame2", show=False):
-    producer = Client("Producer")
-    kafka = Kafka("Topic")
-    producer >> kafka
-```
-
-### 2. Combine into GIF
-```bash
-# Generate all frames
-python frame1.py
-python frame2.py
-python frame3.py
-
-# Combine into animated GIF
-convert -delay 100 -loop 0 frame*.png animation.gif
-```
-
-## Output Formats
-
-Diagrams supports multiple output formats:
-
-```python
-with Diagram("My Diagram", filename="output", show=False, outformat="png"):
-    # Your diagram code
-```
-
-Supported formats:
-- `png` (default)
-- `jpg`
-- `svg`
-- `pdf`
-- `dot`
-
-## Tips & Best Practices
-
-1. **Direction:** Control layout with `direction` parameter
-   - `LR` - Left to Right
-   - `TB` - Top to Bottom
-   - `RL` - Right to Left
-   - `BT` - Bottom to Top
-
-2. **Clustering:** Group related components
-   ```python
-   with Cluster("Group Name"):
-       # components
-   ```
-
-3. **Edge Labels:** Add labels to connections
-   ```python
-   a >> Edge(label="HTTP") >> b
-   ```
-
-4. **Custom Attributes:** Style your diagrams
-   ```python
-   graph_attr = {
-       "fontsize": "16",
-       "bgcolor": "white"
-   }
-   ```
-
-5. **Multiple Connections:** Connect to multiple nodes
-   ```python
-   a >> [b, c, d]
-   ```
-
-## Browse All Available Icons
-
-Visit the official documentation:
-- https://diagrams.mingrammer.com/docs/nodes/onprem
-- https://diagrams.mingrammer.com/docs/nodes/aws
-- https://diagrams.mingrammer.com/docs/nodes/azure
-- https://diagrams.mingrammer.com/docs/nodes/gcp
-- https://diagrams.mingrammer.com/docs/nodes/k8s
-
-## Troubleshooting
-
-### Error: "Graphviz executables not found"
-```bash
-brew install graphviz
-```
-
-### Error: "No module named 'diagrams'"
-```bash
-uv pip install diagrams
-```
-
-### Images not generating
-Make sure `show=False` is set in the Diagram constructor to save files instead of displaying them.
-
-## Next Steps
-
-1. Run the example scripts to see the output
-2. Modify the diagrams to match your specific architecture
-3. Create animated sequences by generating multiple frames
-4. Export to different formats for presentations or social media
-
+**Perfect for creating engaging tech content for your social-notebook project!** 🚀

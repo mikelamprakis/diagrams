@@ -1,0 +1,117 @@
+@startuml
+!theme plain
+title Kafka Cluster Architecture
+footer Social Notebook - Event-Driven Architecture
+
+scale max 800 width
+skinparam nodesep 20
+skinparam ranksep 20
+
+' Include Kafka icons
+!include <cloudinsight/kafka>
+!include <tupadr3/devicons2/apachekafka_original>
+
+' External Services
+rectangle "Checkout Service" as checkout {
+    DEV2_APACHEKAFKA_ORIGINAL(checkout_producer, "Producer", rectangle, #FF6B6B)
+}
+
+rectangle "Inventory Manager" as inventory {
+    DEV2_APACHEKAFKA_ORIGINAL(inventory_consumer, "Consumer", rectangle, #4ECDC4)
+}
+
+rectangle "Billing Manager" as billing {
+    DEV2_APACHEKAFKA_ORIGINAL(billing_consumer, "Consumer", rectangle, #45B7D1)
+}
+
+' Kafka Cluster
+Cluster_Boundary(kafka_cluster, "Kafka Cluster") {
+    
+    ' Kafka Brokers
+    rectangle "Kafka Broker 1" as broker1 {
+        $kafka
+    }
+    
+    rectangle "Kafka Broker 2" as broker2 {
+        $kafka
+    }
+    
+    rectangle "Kafka Broker 3" as broker3 {
+        $kafka
+    }
+    
+    ' Topic
+    rectangle "orders Topic" as orders_topic {
+        rectangle "Partition 0" as partition0
+        rectangle "Partition 1" as partition1
+        rectangle "Partition 2" as partition2
+    }
+    
+    ' Consumer Groups
+    rectangle "Consumer Group: inventory-group" as inventory_group {
+        rectangle "Consumer 1" as inventory_consumer1
+    }
+    
+    rectangle "Consumer Group: billing-group" as billing_group {
+        rectangle "Consumer 1" as billing_consumer1
+    }
+}
+
+' Zookeeper (if using)
+rectangle "Zookeeper Ensemble" as zookeeper {
+    rectangle "ZK Node 1" as zk1
+    rectangle "ZK Node 2" as zk2
+    rectangle "ZK Node 3" as zk3
+}
+
+' Relationships - Producer to Topic
+Rel(checkout_producer, orders_topic, "Publishes Orders", "produce")
+Rel(orders_topic, partition0, "Distributes")
+Rel(orders_topic, partition1, "Distributes")
+Rel(orders_topic, partition2, "Distributes")
+
+' Relationships - Consumers to Topic
+Rel(orders_topic, inventory_consumer1, "Consumes Orders", "consume")
+Rel(orders_topic, billing_consumer1, "Consumes Orders", "consume")
+
+' Relationships - Consumer Groups
+Rel(inventory_consumer1, inventory_group, "Belongs to")
+Rel(billing_consumer1, billing_group, "Belongs to")
+
+' Relationships - External Services
+Rel(checkout, checkout_producer, "Sends Orders")
+Rel(inventory_consumer1, inventory, "Processes Orders")
+Rel(billing_consumer1, billing, "Processes Orders")
+
+' Relationships - Kafka Infrastructure
+Rel(broker1, orders_topic, "Hosts")
+Rel(broker2, orders_topic, "Hosts")
+Rel(broker3, orders_topic, "Hosts")
+
+' Relationships - Zookeeper
+Rel(zookeeper, broker1, "Coordinates")
+Rel(zookeeper, broker2, "Coordinates")
+Rel(zookeeper, broker3, "Coordinates")
+
+note right of orders_topic
+  **Orders Topic**
+  - 3 Partitions
+  - Replication Factor: 3
+  - Retention: 7 days
+end note
+
+note right of inventory_group
+  **Inventory Group**
+  - Processes order events
+  - Updates stock levels
+  - Handles reservations
+end note
+
+note right of billing_group
+  **Billing Group**
+  - Processes order events
+  - Calculates charges
+  - Generates invoices
+end note
+
+@enduml

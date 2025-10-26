@@ -1,0 +1,78 @@
+@startuml
+!theme plain
+title Simple Kubernetes Microservices Example
+footer Social Notebook - Microservices Architecture
+
+scale max 800 width
+skinparam nodesep 15
+skinparam ranksep 15
+
+' Include Kubernetes libraries
+!include <k8s/Common>
+!include <k8s/Simplified>
+!include <k8s/OSS/all>
+
+' External User
+actor "User" as user
+
+' Kubernetes Cluster
+Cluster_Boundary(cluster, "Kubernetes Cluster") {
+    
+    ' Namespace: Web Application
+    Namespace_Boundary(web_ns, "Web Application") {
+        KubernetesIng(ingress, "Ingress", "nginx")
+        KubernetesSvc(web_svc, "Web Service", "ClusterIP")
+        KubernetesDeploy(web_deploy, "Web Deployment", "nginx")
+        KubernetesPod(web_pod1, "Web Pod 1", "nginx")
+        KubernetesPod(web_pod2, "Web Pod 2", "nginx")
+    }
+    
+    ' Namespace: API Services
+    Namespace_Boundary(api_ns, "API Services") {
+        KubernetesSvc(api_svc, "API Service", "ClusterIP")
+        KubernetesDeploy(api_deploy, "API Deployment", "nodejs")
+        KubernetesPod(api_pod1, "API Pod 1", "nodejs")
+        KubernetesPod(api_pod2, "API Pod 2", "nodejs")
+        KubernetesCm(api_cm, "ConfigMap", "api-config")
+        KubernetesSecret(api_secret, "Secret", "api-keys")
+    }
+    
+    ' Namespace: Database
+    Namespace_Boundary(db_ns, "Database") {
+        KubernetesSvc(db_svc, "Database Service", "ClusterIP")
+        KubernetesSts(db_sts, "Database StatefulSet", "postgres")
+        KubernetesPod(db_pod, "Database Pod", "postgres")
+        KubernetesPvc(db_pvc, "Database PVC", "storage")
+    }
+}
+
+' External Storage
+rectangle "External Storage" as storage {
+    KubernetesVol(volume, "Persistent Volume", "EBS")
+}
+
+' Relationships
+Rel(user, ingress, "HTTPS")
+Rel(ingress, web_svc, "Routes")
+Rel(web_svc, web_pod1, "Load Balances")
+Rel(web_svc, web_pod2, "Load Balances")
+Rel(web_deploy, web_pod1, "Manages")
+Rel(web_deploy, web_pod2, "Manages")
+
+Rel(web_pod1, api_svc, "API Calls")
+Rel(web_pod2, api_svc, "API Calls")
+Rel(api_svc, api_pod1, "Load Balances")
+Rel(api_svc, api_pod2, "Load Balances")
+Rel(api_deploy, api_pod1, "Manages")
+Rel(api_deploy, api_pod2, "Manages")
+Rel(api_deploy, api_cm, "Uses Config")
+Rel(api_deploy, api_secret, "Uses Secrets")
+
+Rel(api_pod1, db_svc, "Database Queries")
+Rel(api_pod2, db_svc, "Database Queries")
+Rel(db_svc, db_pod, "Connects")
+Rel(db_sts, db_pod, "Manages")
+Rel(db_pod, db_pvc, "Mounts")
+Rel(db_pvc, volume, "Claims")
+
+@enduml

@@ -1,0 +1,27 @@
+# Manim generated media
+media/
+__pycache__/
+
+# Custom outputs
+output/videos/*.mp4
+output/gifs/*.gif
+
+# Keep directory structure
+!output/videos/.gitkeep
+!output/gifs/.gitkeep
+
+# Python
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+

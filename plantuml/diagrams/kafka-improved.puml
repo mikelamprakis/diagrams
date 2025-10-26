@@ -1,0 +1,102 @@
+@startuml
+!theme plain
+title Kafka Event Streaming Architecture
+footer Social Notebook - Orders Processing Pipeline
+
+scale max 800 width
+skinparam nodesep 20
+skinparam ranksep 20
+
+' Include available Kafka icons
+!include <logos/kafka>
+!include <logos/kafka-icon>
+!include <cloudinsight/kafka>
+!include <tupadr3/devicons2/apachekafka_original>
+
+' Producer Service
+rectangle "Checkout Service" as checkout {
+    $kafka-icon
+    note right : **Producer**\nPublishes order events\nto Kafka cluster
+}
+
+' Kafka Cluster
+Cluster_Boundary(kafka_cluster, "Kafka Cluster") {
+    
+    ' Kafka Brokers
+    rectangle "Broker 1" as broker1 {
+        $kafka
+    }
+    rectangle "Broker 2" as broker2 {
+        $kafka
+    }
+    rectangle "Broker 3" as broker3 {
+        $kafka
+    }
+    
+    ' Topic with Partitions
+    rectangle "orders Topic" as topic {
+        rectangle "Partition 0" as p0
+        rectangle "Partition 1" as p1
+        rectangle "Partition 2" as p2
+    }
+    
+    ' Consumer Groups
+    rectangle "inventory-group" as inventory_group {
+        $kafka-icon
+        note right : **Consumer**\nProcesses order events\nfor inventory management
+    }
+    
+    rectangle "billing-group" as billing_group {
+        $kafka-icon
+        note right : **Consumer**\nProcesses order events\nfor billing operations
+    }
+}
+
+' Consumer Services
+rectangle "Inventory Manager" as inventory_service {
+    rectangle "Stock Update" as stock
+    rectangle "Reservation" as reservation
+}
+
+rectangle "Billing Manager" as billing_service {
+    rectangle "Charge Calc" as charges
+    rectangle "Invoice Gen" as invoice
+}
+
+' Message Flow
+Rel(checkout, topic, "Publishes Orders", "produce")
+Rel(topic, inventory_group, "Consumes Orders", "consume")
+Rel(topic, billing_group, "Consumes Orders", "consume")
+
+' Service Processing
+Rel(inventory_group, inventory_service, "Processes")
+Rel(billing_group, billing_service, "Processes")
+
+' Internal flows
+Rel(inventory_service, stock, "Updates")
+Rel(inventory_service, reservation, "Reserves")
+Rel(billing_service, charges, "Calculates")
+Rel(billing_service, invoice, "Generates")
+
+' Broker relationships
+Rel(broker1, topic, "Hosts")
+Rel(broker2, topic, "Hosts")
+Rel(broker3, topic, "Hosts")
+
+note top of topic
+  **Orders Topic**
+  - 3 Partitions for scalability
+  - Replication Factor: 3
+  - Retention: 7 days
+  - Message Format: JSON
+end note
+
+note bottom of kafka_cluster
+  **Kafka Cluster Features**
+  - High Availability
+  - Fault Tolerance
+  - Horizontal Scaling
+  - Message Persistence
+end note
+
+@enduml

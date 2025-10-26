@@ -1,0 +1,32 @@
+# Generated outputs
+output/images/*.png
+output/images/*.svg
+output/images/*.jpg
+output/gifs/*.gif
+output/videos/*.mp4
+
+# Keep directory structure
+!output/images/.gitkeep
+!output/gifs/.gitkeep
+!output/videos/.gitkeep
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Virtual environment
+.venv/
+venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store

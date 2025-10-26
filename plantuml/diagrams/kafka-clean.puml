@@ -1,0 +1,80 @@
+@startuml
+!theme plain
+title Kafka Orders Processing
+footer Social Notebook - Event Streaming
+
+' Include Kafka icons
+!include <logos/kafka>
+!include <logos/kafka-icon>
+
+' Define colors
+!define PRODUCER_COLOR #FF6B6B
+!define CONSUMER_COLOR #4ECDC4
+!define TOPIC_COLOR #45B7D1
+
+skinparam rectangle<<Producer>> {
+    BackgroundColor PRODUCER_COLOR
+    BorderColor #E53E3E
+    FontColor White
+}
+
+skinparam rectangle<<Consumer>> {
+    BackgroundColor CONSUMER_COLOR
+    BorderColor #38B2AC
+    FontColor White
+}
+
+skinparam rectangle<<Topic>> {
+    BackgroundColor TOPIC_COLOR
+    BorderColor #3182CE
+    FontColor White
+}
+
+' Producer
+rectangle "**Checkout Service**\n(Producer)" as producer <<Producer>> {
+    $kafka-icon
+}
+
+' Kafka Cluster
+package "Kafka Cluster" {
+    
+    rectangle "**orders** Topic" as topic <<Topic>> {
+        rectangle "Partition 0" as p0
+        rectangle "Partition 1" as p1
+        rectangle "Partition 2" as p2
+    }
+}
+
+' Consumers
+rectangle "**Inventory Manager**\n(Consumer)" as consumer1 <<Consumer>> {
+    $kafka-icon
+}
+
+rectangle "**Billing Manager**\n(Consumer)" as consumer2 <<Consumer>> {
+    $kafka-icon
+}
+
+' Relationships
+producer --> topic : "Publish Orders"
+topic --> consumer1 : "Consume Orders\n(inventory-group)"
+topic --> consumer2 : "Consume Orders\n(billing-group)"
+
+note right of topic
+  **Topic Configuration**
+  • Name: orders
+  • Partitions: 3
+  • Replication: 3
+  • Retention: 7 days
+end note
+
+note bottom of consumer1
+  Processes order events for
+  inventory management
+end note
+
+note bottom of consumer2
+  Processes order events for
+  billing operations
+end note
+
+@enduml

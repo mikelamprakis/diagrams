@@ -1,0 +1,64 @@
+@startuml
+!theme plain
+title Kafka Orders Processing Sequence
+footer Social Notebook - Event Processing Flow
+
+scale max 800 width
+
+participant "Checkout Service" as checkout
+participant "Kafka Cluster" as kafka
+participant "Inventory Manager" as inventory
+participant "Billing Manager" as billing
+
+== Order Processing ==
+
+checkout -> kafka : Publish Order Event
+note right
+  Topic: orders
+  Partition: hash(orderId) % 3
+  Message: {
+    "orderId": "12345",
+    "customerId": "67890",
+    "items": [...],
+    "totalAmount": 99.99,
+    "timestamp": "2024-01-15T10:30:00Z"
+  }
+end note
+
+kafka -> inventory : Consume Order Event
+note right
+  Consumer Group: inventory-group
+  Offset: 12345
+end note
+
+kafka -> billing : Consume Order Event
+note right
+  Consumer Group: billing-group
+  Offset: 12345
+end note
+
+== Parallel Processing ==
+
+par Inventory Processing
+  inventory -> inventory : Update Stock Levels
+  inventory -> inventory : Create Reservations
+  inventory -> inventory : Check Availability
+  inventory -> inventory : Handle Backorders
+end
+
+par Billing Processing
+  billing -> billing : Calculate Charges
+  billing -> billing : Apply Discounts
+  billing -> billing : Generate Invoice
+  billing -> billing : Update Customer Account
+end
+
+== Processing Complete ==
+
+note over inventory, billing
+  Both services process the same
+  order event independently
+  and asynchronously
+end note
+
+@enduml

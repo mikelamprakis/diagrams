@@ -1,0 +1,92 @@
+@startuml
+!theme plain
+title Kafka Event Streaming Architecture
+footer Social Notebook - Orders Processing Pipeline
+
+scale max 700 width
+skinparam nodesep 15
+skinparam ranksep 15
+
+' Include Kafka icons
+!include <cloudinsight/kafka>
+!include <tupadr3/devicons2/apachekafka_original>
+
+' Producer
+rectangle "Checkout Service" as checkout {
+    DEV2_APACHEKAFKA_ORIGINAL(producer, "Producer", rectangle, #FF6B6B)
+}
+
+' Kafka Cluster
+Cluster_Boundary(kafka_cluster, "Kafka Cluster") {
+    
+    ' Topic with partitions
+    rectangle "orders Topic" as topic {
+        rectangle "Partition 0" as p0
+        rectangle "Partition 1" as p1
+        rectangle "Partition 2" as p2
+    }
+    
+    ' Consumer Groups
+    rectangle "inventory-group" as inventory_group {
+        DEV2_APACHEKAFKA_ORIGINAL(inventory_consumer, "Consumer", rectangle, #4ECDC4)
+    }
+    
+    rectangle "billing-group" as billing_group {
+        DEV2_APACHEKAFKA_ORIGINAL(billing_consumer, "Consumer", rectangle, #45B7D1)
+    }
+}
+
+' Consumer Services
+rectangle "Inventory Manager" as inventory_service {
+    rectangle "Stock Update" as stock_update
+    rectangle "Reservation" as reservation
+}
+
+rectangle "Billing Manager" as billing_service {
+    rectangle "Charge Calculation" as charge_calc
+    rectangle "Invoice Generation" as invoice_gen
+}
+
+' Message Flow
+Rel(producer, topic, "Publishes Orders", "produce")
+Rel(topic, inventory_consumer, "Consumes Orders", "consume")
+Rel(topic, billing_consumer, "Consumes Orders", "consume")
+
+' Service Processing
+Rel(inventory_consumer, inventory_service, "Processes")
+Rel(billing_consumer, billing_service, "Processes")
+
+' Internal service flows
+Rel(inventory_service, stock_update, "Updates")
+Rel(inventory_service, reservation, "Reserves")
+Rel(billing_service, charge_calc, "Calculates")
+Rel(billing_service, invoice_gen, "Generates")
+
+note top of topic
+  **Orders Topic**
+  - 3 Partitions for scalability
+  - Each order event contains:
+    • Order ID
+    • Customer ID
+    • Items & Quantities
+    • Total Amount
+    • Timestamp
+end note
+
+note right of inventory_group
+  **Inventory Consumer**
+  - Processes order events
+  - Updates stock levels
+  - Creates reservations
+  - Handles backorders
+end note
+
+note right of billing_group
+  **Billing Consumer**
+  - Processes order events
+  - Calculates charges
+  - Applies discounts
+  - Generates invoices
+end note
+
+@enduml
